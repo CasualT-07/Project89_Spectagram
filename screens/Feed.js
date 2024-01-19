@@ -35,7 +35,7 @@ export default class Feed extends Component {
     keyExtractor = (item, index) => index.toString();
 
     renderItem = ({item: post}) => {
-        return <PostCard post={post} />
+        return <PostCard post={post} navigation={this.props.navigation}/>
     }
 
     render() {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     },
 
     droidSafeArea: {
-        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : RFValue(35)
+        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35)
     },
 
     appTitle: {

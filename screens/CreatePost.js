@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     },
 
     droidSafeArea: {
-        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : RFValue(35)
+        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35)
     },
 
     appTitle: {

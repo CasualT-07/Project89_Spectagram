@@ -1,21 +1,22 @@
-import { RFValue } from 'react-native-responsive-fontsize';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Image,  TouchableOpacity} from 'react-native';
-import * as Font from 'expo-font';
+import {Text, View, StyleSheet, StatusBar, Image} from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Font from 'expo-font';
+import {SafeAreaView} from 'react-native-safe-area-context'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 SplashScreen.preventAutoHideAsync();
 
 let customFonts = {
-    "salsa" : require('../assets/font/Salsa-Regular.ttf')
-};
+    'salsa' : require('../assets/font/Salsa-Regular.ttf')
+}
 
-export default class PostCard extends Component {
+export default class PostScreen extends Component {
     constructor(props) {
         super(props);
         this.state={
-            fontsLoaded: false
+            fontsLoaded : false,
         }
     }
 
@@ -27,36 +28,42 @@ export default class PostCard extends Component {
     componentDidMount() {
         this._loadFontsAsync();
     }
-
+    
     render() {
         if(this.state.fontsLoaded) {
-            SplashScreen.hideAsync();
-        
-            return(
+        SplashScreen.hideAsync();
 
+        return(
             <View style={styles.container}>
-                <View style={styles.cardContainer}>
+                <SafeAreaView style={styles.droidSafeArea}/>
 
+                <View style={styles.appTitle}>
+                    <View style={styles.appIcon}>
+                        <Image source={require('../assets/logo.png')} style={styles.iconImage} />
+                    </View>
+                    <View style={styles.appTitleTextContainer}>
+                        <Text style={styles.appTitleText}>Spectagram</Text>
+                    </View>
+                </View>
+
+                <View style={styles.cardContainer}>
                     <View style={styles.authorContainer}>
 
                         <View style={styles.authorImageContainer}>
                             <Image source={require("../assets/profile_img.png")} style={styles.profileImage} />
                         </View>
 
-                        <View style={styles.authorNameContainer}>
-                            <Text style={styles.authorNameText}>{this.props.post.author}</Text>
+                        <View>
+                            <Text style={styles.authorNameText}>{this.props.route.params.post.author}</Text>
                         </View>
 
                     </View>
-                    <TouchableOpacity onPress={() => {
-                        this.props.navigation.navigate("PostScreen", {post: this.props.post})
-                    }}>
+
                     <Image source={require("../assets/post.jpeg")} style={styles.postImage} />
 
                     <View style={styles.captionContainer}>
-                        <Text style={styles.captionText}>{this.props.post.caption}</Text>
+                        <Text style={styles.captionText}>{this.props.route.params.post.caption}</Text>
                     </View>
-                    </TouchableOpacity>
 
                     <View style={styles.actionContainer}>
                         <View style={styles.likeButton}>
@@ -64,26 +71,59 @@ export default class PostCard extends Component {
                             <Text style={styles.likeText}>12k</Text>
                         </View>
                     </View>
-
                 </View>
             </View>
-
-            )
+        )
         }
     }
+    
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        backgroundColor: 'black',
+    },
+
+    droidSafeArea: {
+        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35)
+    },
+
+    appTitle: {
+        flex: 0.07,
+        flexDirection: 'row'
+    },
+
+    appIcon: {
+        flex: .2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    iconImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
+    },
+
+    appTitleTextContainer: {
+        flex: .8,
+        justifyContent: 'center',
+    },
+
+    appTitleText: {
+        color: 'white',
+        fontSize: RFValue(28),
+        fontFamily: 'salsa'
     },
     cardContainer: {
+        flex: 1,
         margin: RFValue(13),
         backgroundColor: "#2f345d",
         borderRadius: RFValue(20)
     },
     authorContainer: {
-        flex: 1,
+        flex: .5,
         flexDirection: 'row',
         alignItems: 'center', 
             
@@ -93,13 +133,13 @@ const styles = StyleSheet.create({
     },
     profileImage: {
         borderRadius: RFValue(10),
-        height: RFValue(40),
-        width: RFValue(40)
+        height: RFValue(50),
+        width: RFValue(50)
     },
 
     authorNameText: {
         fontFamily: 'salsa',
-        fontSize: RFValue(20),
+        fontSize: RFValue(25),
         color: 'white'
     },
     postImage: {
@@ -138,5 +178,4 @@ const styles = StyleSheet.create({
         fontSize: RFValue(25),
         marginLeft: RFValue(5)
     }
-
 })
