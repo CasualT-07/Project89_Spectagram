@@ -119,13 +119,13 @@ const styles = StyleSheet.create({
 		marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35),
 	},
     appTitle: {
-        flex: .2,
+        
         flexDirection: 'row',
         marginBottom: RFValue(20),  
     },
 
     appIcon: {
-        flex: .2,
+        marginRight: RFValue(10),
         justifyContent: 'center',
         alignItems: 'center',
         width: RFValue(50),
