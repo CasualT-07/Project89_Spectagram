@@ -7,6 +7,10 @@ import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import {SafeAreaView} from 'react-native-safe-area-context'
 
+import { ref, onValue } from "firebase/database";
+import { getAuth } from 'firebase/auth';
+import db from '../config';
+
 SplashScreen.preventAutoHideAsync();
 
 let postData = require("./temp_posts.json")
@@ -19,7 +23,9 @@ export default class Feed extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            fontsLoaded: false
+            fontsLoaded: false,
+            light_theme: true,
+            
         }
     }
 
@@ -30,7 +36,21 @@ export default class Feed extends Component {
 
     componentDidMount() {
         this._loadFontsAsync();
+        this.fetchUser();
     }
+
+    async fetchUser() {
+        let theme;
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+    
+        onValue(ref(db, '/users/' + userId), (snapshot) =>{
+          theme = snapshot.val().current_theme;
+          this.setState({
+            light_theme: theme === 'light' ? true : false,
+          })
+        })
+      }
 
     keyExtractor = (item, index) => index.toString();
 
@@ -43,14 +63,14 @@ export default class Feed extends Component {
             SplashScreen.hideAsync();
             return(
 
-            <View style={styles.container}>
+            <View style={this.state.light_theme ? styles.containerLight : styles.container}>
                 <SafeAreaView style={styles.droidSafeArea}/>
                 <View style={styles.appTitle}>
                     <View style={styles.appIcon}>
                         <Image source={require('../assets/logo.png')} style={styles.iconImage} />
                     </View>
                     <View style={styles.appTitleTextContainer}>
-                        <Text style={styles.appTitleText}>Spectagram</Text>
+                        <Text style={this.state.light_theme? styles.appTitleTextLight : styles.appTitleText}>Spectagram</Text>
                     </View>
                 </View>
                 <View style={styles.cardContainer}>
@@ -72,6 +92,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'black',
+    },
+    containerLight: {
+        flex: 1,
+        backgroundColor: 'white',
     },
 
     droidSafeArea: {
@@ -102,6 +126,11 @@ const styles = StyleSheet.create({
 
     appTitleText: {
         color: 'white',
+        fontSize: RFValue(28),
+        fontFamily: 'salsa'
+    },
+    appTitleTextLight: {
+        color: 'black',
         fontSize: RFValue(28),
         fontFamily: 'salsa'
     },

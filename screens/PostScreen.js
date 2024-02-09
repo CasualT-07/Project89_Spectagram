@@ -6,6 +6,10 @@ import * as Font from 'expo-font';
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import {getAuth} from 'firebase/auth';
+import {onValue, ref} from 'firebase/database';
+import db from '../config';
+
 SplashScreen.preventAutoHideAsync();
 
 let customFonts = {
@@ -17,6 +21,8 @@ export default class PostScreen extends Component {
         super(props);
         this.state={
             fontsLoaded : false,
+            light_theme: true,
+
         }
     }
 
@@ -27,6 +33,20 @@ export default class PostScreen extends Component {
 
     componentDidMount() {
         this._loadFontsAsync();
+        this.fetchUser();
+    }
+
+    fetchUser = () => {
+        let theme;
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+
+        onValue(ref(db, '/users/' + userId), (snapshot) => {
+            theme = snapshot.val().current_theme;
+            this.setState({
+                light_theme: theme === 'light' ? true : false
+            })
+        })
     }
     
     render() {
@@ -34,7 +54,7 @@ export default class PostScreen extends Component {
         SplashScreen.hideAsync();
 
         return(
-            <View style={styles.container}>
+            <View style={this.state.light_theme? styles.containerLight : styles.container}>
                 <SafeAreaView style={styles.droidSafeArea}/>
 
                 <View style={styles.appTitle}>
@@ -42,11 +62,11 @@ export default class PostScreen extends Component {
                         <Image source={require('../assets/logo.png')} style={styles.iconImage} />
                     </View>
                     <View style={styles.appTitleTextContainer}>
-                        <Text style={styles.appTitleText}>Spectagram</Text>
+                        <Text style={this.state.light_theme? styles.appTitleTextLight : styles.appTitleText}>Spectagram</Text>
                     </View>
                 </View>
 
-                <View style={styles.cardContainer}>
+                <View style={this.state.light_theme ? styles.cardContainerLight : styles.cardContainer}>
                     <View style={styles.authorContainer}>
 
                         <View style={styles.authorImageContainer}>
@@ -54,7 +74,7 @@ export default class PostScreen extends Component {
                         </View>
 
                         <View>
-                            <Text style={styles.authorNameText}>{this.props.route.params.post.author}</Text>
+                            <Text style={this.state.light_theme ? styles.authorNameTextLight : styles.authorNameText}>{this.props.route.params.post.author}</Text>
                         </View>
 
                     </View>
@@ -62,13 +82,13 @@ export default class PostScreen extends Component {
                     <Image source={require("../assets/post.jpeg")} style={styles.postImage} />
 
                     <View style={styles.captionContainer}>
-                        <Text style={styles.captionText}>{this.props.route.params.post.caption}</Text>
+                        <Text style={this.state.light_theme ? styles.captionTextLight : styles.captionText}>{this.props.route.params.post.caption}</Text>
                     </View>
 
                     <View style={styles.actionContainer}>
                         <View style={styles.likeButton}>
-                            <Ionicons name={"heart"} size={RFValue(30)} color={"white"} />
-                            <Text style={styles.likeText}>12k</Text>
+                            <Ionicons name={"heart"} size={RFValue(30)} color={this.state.light_theme? 'white' : "white"} />
+                            <Text style={this.state.light_theme ? styles.likeTextLight : styles.likeText}>12k</Text>
                         </View>
                     </View>
                 </View>
@@ -85,6 +105,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
     },
 
+    containerLight: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+
     droidSafeArea: {
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35)
     },
@@ -95,7 +120,7 @@ const styles = StyleSheet.create({
     },
 
     appIcon: {
-        flex: .2,
+        flex: .3,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -116,21 +141,38 @@ const styles = StyleSheet.create({
         fontSize: RFValue(28),
         fontFamily: 'salsa'
     },
+
+    appTitleTextLight: {
+        color: 'black',
+        fontSize: RFValue(28),
+        fontFamily: 'salsa'
+    },
+
     cardContainer: {
         flex: 1,
         margin: RFValue(13),
         backgroundColor: "#2f345d",
         borderRadius: RFValue(20)
     },
+
+    cardContainerLight: {
+        flex: 1,
+        margin: RFValue(13),
+        backgroundColor: "#eaeaea",
+        borderRadius: RFValue(20)
+    },
+
     authorContainer: {
         flex: .5,
         flexDirection: 'row',
         alignItems: 'center', 
             
     },
+
     authorImageContainer: {
         padding: 20
     },
+
     profileImage: {
         borderRadius: RFValue(10),
         height: RFValue(50),
@@ -142,6 +184,13 @@ const styles = StyleSheet.create({
         fontSize: RFValue(25),
         color: 'white'
     },
+
+    authorNameTextLight: {
+        fontFamily: 'salsa',
+        fontSize: RFValue(25),
+        color: 'black',
+    },
+
     postImage: {
         resizeMode: 'contain',
         width: '95%',
@@ -149,20 +198,31 @@ const styles = StyleSheet.create({
         height: RFValue(250),
         
     },
+
     captionContainer: {
         alignSelf: 'center'
     },
+
     captionText: {
         fontFamily: 'salsa',
         fontSize: RFValue(18),
         color: 'white',
         paddingTop: RFValue(10)
     },
+
+    captionTextLight: {
+        fontFamily: 'salsa',
+        fontSize: RFValue(18),  
+        color: 'black',
+        paddingTop: RFValue(10)
+    },
+
     actionContainer: {
         justifyContent: 'center',
         alignItems: 'center',
         padding: RFValue(10)
     },
+
     likeButton: {
         width: RFValue(160),
         height: RFValue(40),
@@ -172,7 +232,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#eb3948',
         borderRadius: RFValue(30)
     }, 
+
     likeText: {
+        color: "white",
+        fontFamily: "salsa",
+        fontSize: RFValue(25),
+        marginLeft: RFValue(5)
+    },
+
+    likeTextLight: {
         color: "white",
         fontFamily: "salsa",
         fontSize: RFValue(25),

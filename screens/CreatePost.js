@@ -6,6 +6,10 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import { RFValue } from 'react-native-responsive-fontsize';
 
+import { getAuth } from 'firebase/auth';
+import { ref, onValue, set } from 'firebase/database';
+import db from '../config';
+
 SplashScreen.preventAutoHideAsync();
 
 let customFonts = {
@@ -29,7 +33,8 @@ export default class CreatePost extends Component {
             fontsLoaded: false,
             previewImage: 'image_1',
             dropDownHeight: 40,
-            previewImageLabel: 'Image 1'
+            previewImageLabel: 'Image 1',
+            light_theme: true,
         }
     }
 
@@ -40,7 +45,21 @@ export default class CreatePost extends Component {
 
     componentDidMount() {
         this._loadFontsAsync();
+        this.fetchUser();
     }
+
+    async fetchUser() {
+        let theme;
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+    
+        onValue(ref(db, '/users/' + userId), (snapshot) => {
+          theme = snapshot.val().current_theme;
+          this.setState({
+            light_theme: theme === 'light' ? true : false,
+          })
+        })
+      }
 
     render() {
         if(this.state.fontsLoaded) {
@@ -48,7 +67,7 @@ export default class CreatePost extends Component {
 
             return(
 
-            <View style={styles.container}>
+            <View style={this.state.light_theme ? styles.containerLight: styles.container}>
 
                 <SafeAreaView style={styles.droidSafeArea} />
 
@@ -58,7 +77,7 @@ export default class CreatePost extends Component {
                         <Image source={require("../assets/logo.png")} style={styles.iconImage} />
                     </View>
                     <View style={styles.appTitleTextContainer}>
-                        <Text style={styles.appTitleText}>New Post</Text>
+                        <Text style={this.state.light_theme ? styles.appTitleTextLight: styles.appTitleText}>New Post</Text>
                     </View>
 
                 </View>
@@ -94,17 +113,17 @@ export default class CreatePost extends Component {
                                 this.setState({dropDownHeight: 40});
                             }}
                             
-                            style={styles.dropDownPicker}
+                            style={this.state.light_theme ? styles.dropDownPickerLight : styles.dropDownPicker}
 
                             placeholder={this.state.previewImageLabel}
                             
                             itemStyle={{justifyContent: 'flex-start'}}
                             
-                            dropDownStyle={{backgroundColor: '#BCABBC'}}
+                            dropDownStyle={{backgroundColor: this.state.light_theme ? 'black' : 'white'}}
                             
-                            textStyle={{color: '#BCABBC', fontFamily: 'salsa'}}
+                            textStyle={{color: this.state.light_theme ? 'black' : 'white', fontFamily: 'salsa'}}
                             
-                            arrowStyle={{colow: 'white'}}
+                            arrowStyle={{color:  this.state.light_theme ? 'black' : 'white'}}
                             
                             onSelectItem={item => this.setState({previewImage: item.value, previewImageLabel: item.label})}/>
                         </View>
@@ -113,7 +132,7 @@ export default class CreatePost extends Component {
                         style={styles.inputFont}
                         onChangeText={caption => this.setState({caption})}
                         placeholder={'Caption'}
-                        placeholderTextColor='#BCABBC' 
+                        placeholderTextColor = {this.state.light_theme ? 'black' : 'white'}
                         />
 
                     </ScrollView>
@@ -131,6 +150,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'black',
+    },
+
+    containerLight: {
+        flex: 1,
+        backgroundColor: 'white',
     },
 
     droidSafeArea: {
@@ -165,6 +189,12 @@ const styles = StyleSheet.create({
         fontFamily: 'salsa'
     },
 
+    appTitleTextLight: {
+        color: 'black',
+        fontSize: RFValue(28),
+        fontFamily: 'salsa'
+    },
+
     fieldsContainer: {
         flex: 0.8,
         flexDirection: 'column',
@@ -192,5 +222,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderWidth: RFValue(1),
         borderColor: 'white',
-    }
+    },
+    dropDownPickerLight: {
+        backgroundColor: 'transparent',
+        borderWidth: RFValue(1),
+        borderColor: 'black',
+    },
 })

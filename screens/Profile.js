@@ -53,7 +53,7 @@ export default class Profile extends Component {
         const theme = !this.state.isEnabled ? 'dark' : 'light';
 
         const auth = getAuth();
-        const user = auth.currentUser.uid;
+        const user = auth.currentUser;
 
         if(user) {
             var updates = {};
@@ -63,6 +63,7 @@ export default class Profile extends Component {
             update(dbRef, updates);
 
             this.setState({isEnabled: !previous_state, light_theme: previous_state})
+            console.log(theme);
         }
     }
 
@@ -75,7 +76,7 @@ export default class Profile extends Component {
         if(this.state.fontsLoaded) {
             SplashScreen.hideAsync();
             return(
-                <View style={styles.container}>
+                <View style={this.state.light_theme ? styles.containerLight : styles.container}>
                     <SafeAreaView style={styles.droidSafeArea}/>
 
                     <View style={styles.appTitle}>
@@ -83,21 +84,33 @@ export default class Profile extends Component {
                           <Image source={require('../assets/logo.png')} style={styles.iconImage} />
                         </View>
                         <View style={styles.appTitleTextContainer}>
-                           <Text style={styles.appTitleText}>Spectagram</Text>
+                           <Text style={this.state.light_theme ? styles.appTitleTextLight : styles.appTitleText}>Spectagram</Text>
                         </View>
                     </View>
 
-                    <View style={styles.themeContainer}>
-                        <Text style={styles.themeText}>Dark Theme</Text>
-                        <Switch
-                            style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}] }}
-                            trackColor={{false: '#767577', true: 'white'}}
-                            thumbColor={this.state.isEnabled ? '#ee8249' : '#f4f3f4'}
-                            ios_backgroundColor='#3e3e3e'
-                            onValueChange={() => this.toggleSwitch()}
-                            value={this.state.isEnabled}
-                        />
+                    <View style={styles.screenContainer}>
+
+                        <View styles={styles.profileImageContainer}>
+                            <Image source={require('../assets/profile_img.png')} style={styles.profileImage}/>
+                            <Text style={this.state.light_theme ? styles.nameTextLight : styles.nameText}>{this.state.name}</Text>
+                        </View>
+
+                        <View style={styles.themeContainer}>
+                            <Text style={this.state.light_theme ? styles.themeTextLight : styles.themeText}>Dark Theme</Text>
+                                <Switch
+                                style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}] }}
+                                trackColor={{false: '#767577', true: 'white'}}
+                                thumbColor={this.state.isEnabled ? '#ee8249' : '#f4f3f4'}
+                                ios_backgroundColor='#3e3e3e'
+                                onValueChange={() => this.toggleSwitch()}
+                                value={this.state.isEnabled}
+                                />
+                        </View>
+                        <View style={{ flex: 0.3 }} />
                     </View>
+                    <View style={{ flex: 0.08 }} />
+
+                    
                 </View>
             )
         }
@@ -110,6 +123,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black',
     },
+    containerLight: {
+        flex: 1,
+        backgroundColor: 'white',
+    }, 
     droidSafeArea: {
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
@@ -131,9 +148,13 @@ const styles = StyleSheet.create({
         flex: .8,
         justifyContent: 'center',
     },
-
     appTitleText: {
         color: 'white',
+        fontSize: RFValue(28),
+        fontFamily: 'salsa'
+    },
+    appTitleTextLight: {
+        color: 'black',
         fontSize: RFValue(28),
         fontFamily: 'salsa'
     },
@@ -149,4 +170,35 @@ const styles = StyleSheet.create({
         fontFamily: 'salsa',
         marginRight: RFValue(15),
     },
+    themeTextLight: {
+        color: 'black',
+        fontSize: RFValue(30),
+        fontFamily: 'salsa',
+        marginRight: RFValue(15),
+    },
+    screenContainer: {
+        flex: .85
+    },
+    profileImageContainer: {
+        flex: .5,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    profileImage: {
+        width: RFValue(140),
+        height: RFValue(140),
+        borderRadius: RFValue(70),
+    },
+    nameText: {
+        color: 'white',
+        fontSize: RFValue(40),
+        fontFamily: 'salsa',
+        marginTop: RFValue(10),
+      },
+      nameTextLight: {
+        color: 'black',
+        fontFamily: 'salsa',
+        fontSize: RFValue(40),
+        marginTop: RFValue(10),
+      },
 }) 

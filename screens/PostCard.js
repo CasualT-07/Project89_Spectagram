@@ -5,6 +5,10 @@ import {View, Text, StyleSheet, Image,  TouchableOpacity} from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { ref, onValue } from "firebase/database";
+import { getAuth } from 'firebase/auth';
+import db from '../config';
+
 SplashScreen.preventAutoHideAsync();
 
 let customFonts = {
@@ -15,7 +19,8 @@ export default class PostCard extends Component {
     constructor(props) {
         super(props);
         this.state={
-            fontsLoaded: false
+            fontsLoaded: false,
+            light_theme: true
         }
     }
 
@@ -26,7 +31,21 @@ export default class PostCard extends Component {
 
     componentDidMount() {
         this._loadFontsAsync();
+        this.fetchUser();
     }
+
+    async fetchUser() {
+        let theme;
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+    
+        onValue(ref(db, '/users/' + userId), (snapshot) =>{
+          theme = snapshot.val().current_theme;
+          this.setState({
+            light_theme: theme === 'light' ? true : false,
+          })
+        })
+      }
 
     render() {
         if(this.state.fontsLoaded) {
@@ -35,7 +54,7 @@ export default class PostCard extends Component {
             return(
 
             <View style={styles.container}>
-                <View style={styles.cardContainer}>
+                <View style={this.state.light_theme? styles.cardContainerLight : styles.cardContainer}>
 
                     <View style={styles.authorContainer}>
 
@@ -44,7 +63,7 @@ export default class PostCard extends Component {
                         </View>
 
                         <View style={styles.authorNameContainer}>
-                            <Text style={styles.authorNameText}>{this.props.post.author}</Text>
+                            <Text style={this.state.light_theme? styles.authorNameTextLight: styles.authorNameText}>{this.props.post.author}</Text>
                         </View>
 
                     </View>
@@ -54,7 +73,7 @@ export default class PostCard extends Component {
                     <Image source={require("../assets/post.jpeg")} style={styles.postImage} />
 
                     <View style={styles.captionContainer}>
-                        <Text style={styles.captionText}>{this.props.post.caption}</Text>
+                        <Text style={this.state.light_theme? styles.captionTextLight : styles.captionText}>{this.props.post.caption}</Text>
                     </View>
                     </TouchableOpacity>
 
@@ -82,6 +101,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#2f345d",
         borderRadius: RFValue(20)
     },
+    cardContainerLight: {
+        margin: RFValue(13),
+        backgroundColor: "#eaeaea",
+        borderRadius: RFValue(20)
+    },
     authorContainer: {
         flex: 1,
         flexDirection: 'row',
@@ -96,11 +120,15 @@ const styles = StyleSheet.create({
         height: RFValue(40),
         width: RFValue(40)
     },
-
     authorNameText: {
         fontFamily: 'salsa',
         fontSize: RFValue(20),
         color: 'white'
+    },
+    authorNameTextLight: {
+        fontFamily: 'salsa',
+        fontSize: RFValue(20),
+        color: 'black'
     },
     postImage: {
         resizeMode: 'contain',
@@ -116,6 +144,12 @@ const styles = StyleSheet.create({
         fontFamily: 'salsa',
         fontSize: RFValue(18),
         color: 'white',
+        paddingTop: RFValue(10)
+    },
+    captionTextLight: {
+        fontFamily: 'salsa',
+        fontSize: RFValue(18),
+        color: 'black',
         paddingTop: RFValue(10)
     },
     actionContainer: {

@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 
 import { getAuth, createUserWithEmailAndPassword, confirmPasswordReset } from 'firebase/auth';
+import { ref, set } from 'firebase/database';
+import db from '../config';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as Font from 'expo-font';
@@ -157,15 +159,17 @@ const styles = StyleSheet.create({
 		marginTop: Platform.OS === 'android' ? StatusBar.currentHeight -45 : RFValue(35),
 	},
     appTitle: {
-        flex: 0.07,
-        flexDirection: 'row',
         
+        flexDirection: 'row',
+        marginBottom: RFValue(20),  
     },
 
     appIcon: {
-        flex: .2,
+        marginRight: RFValue(10),
         justifyContent: 'center',
         alignItems: 'center',
+        width: RFValue(50),
+        height: RFValue(50)
     },
 
     iconImage: {
@@ -187,8 +191,8 @@ const styles = StyleSheet.create({
     textinput: {
         width: RFValue(250),
         height: RFValue(50),
+        padding: RFValue(10),
         marginTop: RFValue(10),
-        margin: RFValue(10),
         borderColor: '#FFFFFF',
         borderWidth: RFValue(4),
         borderRadius: RFValue(10),
