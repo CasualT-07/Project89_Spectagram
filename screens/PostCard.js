@@ -1,7 +1,7 @@
 import { RFValue } from 'react-native-responsive-fontsize';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Image,  TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Image,  TouchableOpacity, Alert} from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -15,12 +15,25 @@ let customFonts = {
     "salsa" : require('../assets/font/Salsa-Regular.ttf')
 };
 
+let preview_images = {
+    image_1: require("../assets/image_1.jpg"),
+    image_2: require("../assets/image_2.jpg"),
+    image_3: require("../assets/image_3.jpg"),
+    image_4: require("../assets/image_4.jpg"),
+    image_5: require("../assets/image_5.jpg"),
+    image_6: require("../assets/image_6.jpg"),
+    image_7: require("../assets/image_7.jpg"),
+}
+
 export default class PostCard extends Component {
     constructor(props) {
         super(props);
         this.state={
             fontsLoaded: false,
-            light_theme: true
+            light_theme: true,
+            post_data: this.props.post.value,
+            post_id: this.props.post.key,
+            posterName: '',
         }
     }
 
@@ -32,6 +45,7 @@ export default class PostCard extends Component {
     componentDidMount() {
         this._loadFontsAsync();
         this.fetchUser();
+        this.fetchPoster();
     }
 
     async fetchUser() {
@@ -45,11 +59,23 @@ export default class PostCard extends Component {
             light_theme: theme === 'light' ? true : false,
           })
         })
-      }
+    }
+
+    async fetchPoster() {
+        let first_name, last_name;
+        let userId = this.state.post_data.author_uid
+
+        onValue(ref(db, '/users/' + userId), (snapshot) => {
+            first_name = snapshot.val().first_name;
+            last_name = snapshot.val().last_name;
+            let full_name = first_name + last_name;
+            this.setState({posterName: full_name})
+        })
+    }
 
     render() {
         if(this.state.fontsLoaded) {
-            SplashScreen.hideAsync();
+            SplashScreen.hideAsync();   
         
             return(
 
@@ -63,17 +89,17 @@ export default class PostCard extends Component {
                         </View>
 
                         <View style={styles.authorNameContainer}>
-                            <Text style={this.state.light_theme? styles.authorNameTextLight: styles.authorNameText}>{this.props.post.author}</Text>
+                            <Text style={this.state.light_theme? styles.authorNameTextLight: styles.authorNameText}>{this.state.posterName}</Text>
                         </View>
 
                     </View>
                     <TouchableOpacity onPress={() => {
                         this.props.navigation.navigate("PostScreen", {post: this.props.post})
                     }}>
-                    <Image source={require("../assets/post.jpeg")} style={styles.postImage} />
+                    <Image source={preview_images[this.state.post_data.preview_image]} style={styles.postImage} />
 
                     <View style={styles.captionContainer}>
-                        <Text style={this.state.light_theme? styles.captionTextLight : styles.captionText}>{this.props.post.caption}</Text>
+                        <Text style={this.state.light_theme? styles.captionTextLight : styles.captionText}>{this.state.post_data.caption}</Text>
                     </View>
                     </TouchableOpacity>
 
@@ -144,7 +170,7 @@ const styles = StyleSheet.create({
         fontFamily: 'salsa',
         fontSize: RFValue(18),
         color: 'white',
-        paddingTop: RFValue(10)
+        //paddingTop: RFValue(10)
     },
     captionTextLight: {
         fontFamily: 'salsa',

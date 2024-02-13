@@ -8,7 +8,8 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
     return ( 
-        <Drawer.Navigator>
+        <Drawer.Navigator
+        initialRouteName='MyHome'>
             <Drawer.Screen name='MyHome' component={StackNavigator} />
             <Drawer.Screen name='Profile' component={Profile} />
             <Drawer.Screen name='Logout' component={Logout} />

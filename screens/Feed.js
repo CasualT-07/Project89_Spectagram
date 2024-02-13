@@ -25,7 +25,7 @@ export default class Feed extends Component {
         this.state = {
             fontsLoaded: false,
             light_theme: true,
-            
+            posts: [],
         }
     }
 
@@ -37,6 +37,7 @@ export default class Feed extends Component {
     componentDidMount() {
         this._loadFontsAsync();
         this.fetchUser();
+        this.fetchPosts();
     }
 
     async fetchUser() {
@@ -50,7 +51,23 @@ export default class Feed extends Component {
             light_theme: theme === 'light' ? true : false,
           })
         })
-      }
+    }
+
+    async fetchPosts() {
+        onValue(ref(db, '/posts/'), (snapshot) => {
+            let posts = [];
+            if(snapshot.val()) {
+                Object.keys(snapshot.val()).forEach(function (key) {
+                    posts.push({
+                        key: key,
+                        value: snapshot.val()[key],
+                    })
+                })
+            }
+            this.setState({posts: posts})
+            //console.log(this.state.posts)
+        })
+    }
 
     keyExtractor = (item, index) => index.toString();
 
@@ -76,7 +93,7 @@ export default class Feed extends Component {
                 <View style={styles.cardContainer}>
                     <FlatList
                         keyExtractor={this.keyExtractor}
-                        data={postData}
+                        data={this.state.posts}
                         renderItem={this.renderItem}
                     />
                 </View>

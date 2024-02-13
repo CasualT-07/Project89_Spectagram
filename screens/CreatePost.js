@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { View, Text, StyleSheet, TextInput, Image, StatusBar, ScrollView} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Image, StatusBar, ScrollView, Alert} from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -35,6 +35,7 @@ export default class CreatePost extends Component {
             dropDownHeight: 40,
             previewImageLabel: 'Image 1',
             light_theme: true,
+            profile_image: require('../assets/profile_img.png')
         }
     }
 
@@ -59,7 +60,37 @@ export default class CreatePost extends Component {
             light_theme: theme === 'light' ? true : false,
           })
         })
-      }
+    }
+
+    async addPost() {
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+
+        if(this.state.caption) {
+            let postData = {
+                preview_image: this.state.previewImage,
+                caption: this.state.caption,
+                author: auth.currentUser.displayName,
+                created_on: new Date(),
+                author_uid: userId,
+                profile_image: this.state.profile_image,
+                likes: 0,
+            };
+
+            const dbRef = ref(db, '/posts/' + Math.random().toString(36).slice(2));
+            set(dbRef, postData);
+
+            //this.props.setUpdateToTrue();
+            this.props.navigation.navigate('Feed');
+        } else {
+            Alert.alert(
+                'Error',
+                'All fields are required!',
+                [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                {cancelable: false}
+            )
+        }
+    }
 
     render() {
         if(this.state.fontsLoaded) {
@@ -105,6 +136,8 @@ export default class CreatePost extends Component {
 
                             open={this.state.dropDownHeight == 170 ? true : false}
 
+                            theme = "DARK"
+
                             onOpen={() => {
                                 this.setState({dropDownHeight: 170});
                             }}
@@ -117,13 +150,9 @@ export default class CreatePost extends Component {
 
                             placeholder={this.state.previewImageLabel}
                             
-                            itemStyle={{justifyContent: 'flex-start'}}
-                            
-                            dropDownStyle={{backgroundColor: this.state.light_theme ? 'black' : 'white'}}
+                            dropDownStyle={{color: 'black'}}
                             
                             textStyle={{color: this.state.light_theme ? 'black' : 'white', fontFamily: 'salsa'}}
-                            
-                            arrowStyle={{color:  this.state.light_theme ? 'black' : 'white'}}
                             
                             onSelectItem={item => this.setState({previewImage: item.value, previewImageLabel: item.label})}/>
                         </View>
@@ -134,6 +163,9 @@ export default class CreatePost extends Component {
                         placeholder={'Caption'}
                         placeholderTextColor = {this.state.light_theme ? 'black' : 'white'}
                         />
+                        <TouchableOpacity style={styles.submitButton} onPress={() => this.addPost()}>
+                            <Text style={styles.submitText}>Submit</Text>
+                        </TouchableOpacity>
 
                     </ScrollView>
                 </View> 
@@ -227,5 +259,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderWidth: RFValue(1),
         borderColor: 'black',
+    },
+
+    submitButton: {
+        borderRadius: RFValue(10),
+        justifyContent: 'center',
+        backgroundColor: 'white',
+        marginTop: RFValue(10),
+        alignItems: 'center',
+        padding: RFValue(10),
+    },
+
+    submitText: {
+        color: 'black',
+        fontFamily: 'salsa',
+        fontSize: RFValue(20)
     },
 })

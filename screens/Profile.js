@@ -90,10 +90,8 @@ export default class Profile extends Component {
 
                     <View style={styles.screenContainer}>
 
-                        <View styles={styles.profileImageContainer}>
-                            <Image source={require('../assets/profile_img.png')} style={styles.profileImage}/>
-                            <Text style={this.state.light_theme ? styles.nameTextLight : styles.nameText}>{this.state.name}</Text>
-                        </View>
+                        <Image source={require('../assets/profile_img.png')} style={styles.profileImage}/>
+                        <Text style={this.state.light_theme ? styles.nameTextLight : styles.nameText}>{this.state.name}</Text>
 
                         <View style={styles.themeContainer}>
                             <Text style={this.state.light_theme ? styles.themeTextLight : styles.themeText}>Dark Theme</Text>
@@ -163,6 +161,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: RFValue(20),
+        alignItems: 'center'
     },
     themeText: {
         color: 'white',
@@ -179,26 +178,23 @@ const styles = StyleSheet.create({
     screenContainer: {
         flex: .85
     },
-    profileImageContainer: {
-        flex: .5,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
     profileImage: {
-        width: RFValue(140),
-        height: RFValue(140),
-        borderRadius: RFValue(70),
+        width: RFValue(120),
+        height: RFValue(120),
+        borderRadius: RFValue(60),
+        alignSelf: 'center',
+        marginTop: RFValue(15),
     },
     nameText: {
         color: 'white',
         fontSize: RFValue(40),
         fontFamily: 'salsa',
-        marginTop: RFValue(10),
+        alignSelf: 'center'
       },
       nameTextLight: {
         color: 'black',
         fontFamily: 'salsa',
         fontSize: RFValue(40),
-        marginTop: RFValue(10),
+        alignSelf: 'center'
       },
 }) 
